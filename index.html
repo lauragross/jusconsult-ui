@@ -96,7 +96,7 @@
             <!-- Gráfico de barras -->
             <div class="chart-container" id="chartContainer">
                 <div class="chart-header">
-                    <h3 class="chart-title">📊 Processos por Período de Atualização</h3>
+                    <h3 class="chart-title">Processos por Período de Atualização</h3>
                 </div>
                 <div class="chart-wrapper">
                     <canvas id="updatesChart"></canvas>
@@ -121,15 +121,15 @@
             </div>
 
             <div class="update-actions">
-                <button class="btn btn-primary" onclick="startDatabaseUpdate()" id="updateBtn">🔄 Iniciar Atualização</button>
-                <button class="btn btn-secondary" onclick="stopDatabaseUpdate()" id="stopBtn" style="display: none;">⏹️ Parar Atualização</button>
+                <button class="btn btn-primary" onclick="startDatabaseUpdate()" id="updateBtn">Iniciar Atualização</button>
+                <button class="btn btn-secondary" onclick="stopDatabaseUpdate()" id="stopBtn" style="display: none;">Parar Atualização</button>
             </div>
 
             <div class="loading" id="updateLoading" style="display: none;">Iniciando atualização...</div>
             
             <div id="updateProgress" style="display: none;">
                 <div class="progress-header">
-                    <h3>📊 Progresso da Atualização</h3>
+                    <h3>Progresso da Atualização</h3>
                     <div class="progress-stats">
                         <span id="progressStats">Processando...</span>
                     </div>
@@ -143,7 +143,7 @@
             
             <div id="updateResults" style="display: none;">
                 <div class="results-summary">
-                    <h3>✅ Atualização Concluída</h3>
+                    <h3>Atualização Concluída</h3>
                     <div class="summary-stats">
                         <div class="stat-item">
                             <span class="stat-label">Processos Encontrados:</span>
@@ -157,12 +157,12 @@
                 </div>
                 
                 <div id="notFoundProcesses" style="display: none;">
-                    <h4>❌ Processos Não Encontrados</h4>
+                    <h4>Processos Não Encontrados</h4>
                     <div class="not-found-list" id="notFoundList"></div>
                 </div>
                 
                 <div class="update-actions">
-                    <button class="btn btn-primary" onclick="resetUpdate()">🔄 Nova Atualização</button>
+                    <button class="btn btn-primary" onclick="resetUpdate()">Nova Atualização</button>
                 </div>
             </div>
             
@@ -182,7 +182,7 @@
 
             <!-- Upload de arquivo Excel -->
             <div class="file-upload" id="fileUploadArea" onclick="document.getElementById('excelFile').click()">
-                <div class="upload-text">📁 Clique para fazer upload do arquivo Excel</div>
+                <div class="upload-text">Clique para fazer upload do arquivo Excel</div>
                 <div class="upload-hint">ou arraste o arquivo aqui</div>
                 <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
             </div>
@@ -190,7 +190,7 @@
             <!-- Área de confirmação (inicialmente oculta) -->
             <div id="confirmationArea" style="display: none;">
                 <div class="confirmation-box">
-                    <h3>📋 Arquivo Carregado com Sucesso!</h3>
+                    <h3>Arquivo Carregado com Sucesso!</h3>
                     <p id="fileInfo"></p>
                     <div class="confirmation-actions">
                         <button class="btn btn-primary" onclick="confirmReplace()">Confirmar Substituição da Lista</button>

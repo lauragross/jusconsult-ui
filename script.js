@@ -51,7 +51,7 @@ async function loadTribunais() {
                 updatesSelect.appendChild(updatesOption);
             });
             
-            console.log('✅ Tribunais carregados:', tribunais);
+            console.log('Tribunais carregados:', tribunais);
         }
     } catch (error) {
         console.error('Erro ao carregar tribunais:', error);
@@ -82,7 +82,7 @@ async function loadCategorias() {
             
             // Adicionar novas categorias
             categorias.forEach((categoria, index) => {
-                console.log(`🔍 Adicionando categoria ${index + 1}: "${categoria}"`);
+                console.log(`Adicionando categoria ${index + 1}: "${categoria}"`);
                 
                 const option = document.createElement('option');
                 option.value = categoria;
@@ -95,8 +95,8 @@ async function loadCategorias() {
                 updatesSelect.appendChild(updatesOption);
             });
             
-            console.log('✅ Categorias carregadas:', categorias);
-            console.log('✅ Total de categorias:', categorias.length);
+            console.log('Categorias carregadas:', categorias);
+            console.log('Total de categorias:', categorias.length);
         }
     } catch (error) {
         console.error('Erro ao carregar categorias:', error);
@@ -272,7 +272,7 @@ function displayUpdates(data) {
     // Mostrar apenas um resumo simples
     let html = `
         <div class="updates-section">
-            <h3>📊 Resumo Geral</h3>
+            <h3>Resumo Geral</h3>
             <div class="empty-state">
                 <p><strong>Total de processos:</strong> ${totalProcessos}</p>
                 <p>Clique nas barras do gráfico acima para ver os processos de cada período.</p>
@@ -878,7 +878,7 @@ async function confirmReplace() {
         // Mostrar mensagem de sucesso
         content.innerHTML = `
             <div class="success" style="background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px solid #c3e6cb;">
-                <h4>✅ Lista de Processos Substituída com Sucesso!</h4>
+                <h4>Lista de Processos Substituída com Sucesso!</h4>
                 <p>O arquivo <strong>processos.xlsx</strong> foi atualizado com sucesso.</p>
                 <p>Agora você pode usar a opção de atualizar o banco de dados na página inicial.</p>
                 <button class="btn btn-primary" onclick="resetUpload()" style="margin-top: 10px;">Fazer Nova Substituição</button>
@@ -937,8 +937,8 @@ async function startDatabaseUpdate() {
     const foundProcesses = [];
     
     try {
-        console.log('🔄 Iniciando requisição para update-database-stream...');
-        addLogEntry('🔄 Conectando ao servidor...', 'info');
+        console.log('Iniciando requisição para update-database-stream...');
+        addLogEntry('Conectando ao servidor...', 'info');
         
         const response = await fetch(`${API_BASE}/update-database-stream`, {
             method: 'POST',
@@ -947,7 +947,7 @@ async function startDatabaseUpdate() {
             }
         });
 
-        console.log('📡 Resposta recebida:', response.status, response.statusText);
+        console.log('Resposta recebida:', response.status, response.statusText);
 
         if (!response.ok) {
             const errorText = await response.text();
@@ -957,8 +957,10 @@ async function startDatabaseUpdate() {
         document.getElementById('updateLoading').style.display = 'none';
         document.getElementById('updateProgress').style.display = 'block';
 
-        console.log('📡 Iniciando leitura do stream...');
-        addLogEntry('📡 Conectado! Iniciando processamento...', 'info');
+        console.log('Iniciando leitura do stream...');
+        console.log('Elemento updateProgress:', document.getElementById('updateProgress'));
+        console.log('Elemento progressLogs:', document.getElementById('progressLogs'));
+        addLogEntry('Conectado! Iniciando processamento...', 'info');
 
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
@@ -967,7 +969,7 @@ async function startDatabaseUpdate() {
         while (true) {
             const { done, value } = await reader.read();
             if (done) {
-                console.log('📡 Stream finalizado');
+                console.log('Stream finalizado');
                 break;
             }
 
@@ -976,16 +978,20 @@ async function startDatabaseUpdate() {
             buffer = lines.pop(); // Keep the incomplete line in buffer
 
             for (const line of lines) {
+                console.log('Linha recebida do stream:', line);
                 if (line.trim() && line.startsWith('data: ')) {
                     try {
                         const jsonStr = line.substring(6); // Remove 'data: '
+                        console.log('JSON string extraída:', jsonStr);
                         const data = JSON.parse(jsonStr);
-                        console.log('📊 Dados recebidos:', data);
+                        console.log('Dados recebidos:', data);
                         updateProgress(data, notFoundProcesses, foundProcesses);
                     } catch (e) {
-                        console.log('⚠️ Erro ao parsear JSON:', line, e);
-                        addLogEntry(`⚠️ Erro ao processar linha: ${line}`, 'warning');
+                        console.log('Erro ao parsear JSON:', line, e);
+                        addLogEntry(`Erro ao processar linha: ${line}`, 'warning');
                     }
+                } else if (line.trim()) {
+                    console.log('Linha não processada (não é data:):', line);
                 }
             }
         }
@@ -996,14 +1002,14 @@ async function startDatabaseUpdate() {
         showFinalResults(notFoundProcesses, foundProcesses);
 
     } catch (error) {
-        console.error('❌ Erro na atualização:', error);
-        addLogEntry(`❌ Erro: ${error.message}`, 'error');
+        console.error('Erro na atualização:', error);
+        addLogEntry(`Erro: ${error.message}`, 'error');
         updateInProgress = false;
         document.getElementById('stopBtn').style.display = 'none';
         document.getElementById('updateBtn').style.display = 'inline-block';
         
         // ATUALIZAR listas de categorias e tribunais mesmo com erro
-        console.log('🔄 Atualizando listas de filtros após erro...');
+        console.log('Atualizando listas de filtros após erro...');
         
         setTimeout(() => {
             console.log('📞 Forçando atualização após erro...');
@@ -1013,7 +1019,10 @@ async function startDatabaseUpdate() {
 }
 
 function updateProgress(data, notFoundProcesses, foundProcesses) {
+    console.log('updateProgress chamada com:', data);
+    
     if (data.type === 'log') {
+        console.log('Processando log:', data.message, data.level);
         addLogEntry(data.message, data.level || 'info');
         
         // Parse success messages to extract found processes
@@ -1023,7 +1032,7 @@ function updateProgress(data, notFoundProcesses, foundProcesses) {
                 const processo = match[1];
                 if (!foundProcesses.includes(processo)) {
                     foundProcesses.push(processo);
-                    console.log('✅ Processo encontrado adicionado:', processo);
+                    console.log('Processo encontrado adicionado:', processo);
                 }
             }
         }
@@ -1053,39 +1062,56 @@ function updateProgress(data, notFoundProcesses, foundProcesses) {
                 const processo = match[1].trim();
                 if (!notFoundProcesses.includes(processo)) {
                     notFoundProcesses.push(processo);
-                    console.log('❌ Processo não encontrado adicionado:', processo);
+                    console.log('Processo não encontrado adicionado:', processo);
                 } else {
-                    console.log('⚠️ Processo não encontrado já existe (ignorando):', processo);
+                    console.log('Processo não encontrado já existe (ignorando):', processo);
                 }
             } else {
-                console.log('⚠️ Não foi possível extrair número do processo da mensagem:', data.message);
+                console.log('Não foi possível extrair número do processo da mensagem:', data.message);
             }
         }
     } else if (data.type === 'progress') {
-        document.getElementById('progressStats').textContent = 
-            `Processando ${data.current}/${data.total} processos...`;
+        console.log('Atualizando progresso:', data);
+        const progressStatsElement = document.getElementById('progressStats');
+        if (progressStatsElement) {
+            progressStatsElement.textContent = `Processando ${data.current}/${data.total} processos...`;
+            console.log('Progresso atualizado:', progressStatsElement.textContent);
+        } else {
+            console.error('Elemento progressStats não encontrado!');
+        }
     } else if (data.type === 'found') {
         if (!foundProcesses.includes(data.processo)) {
             foundProcesses.push(data.processo);
-            console.log('✅ Processo encontrado (tipo found):', data.processo);
+            console.log('Processo encontrado (tipo found):', data.processo);
         }
     } else if (data.type === 'notFound') {
         if (!notFoundProcesses.includes(data.processo)) {
             notFoundProcesses.push(data.processo);
-            console.log('❌ Processo não encontrado (tipo notFound):', data.processo);
+            console.log('Processo não encontrado (tipo notFound):', data.processo);
         } else {
-            console.log('⚠️ Processo não encontrado já existe (ignorando):', data.processo);
+            console.log('Processo não encontrado já existe (ignorando):', data.processo);
         }
     }
 }
 
 function addLogEntry(message, level = 'info') {
+    console.log('addLogEntry chamada:', { message, level });
     const logsContainer = document.getElementById('progressLogs');
+    console.log('logsContainer encontrado:', logsContainer);
+    
+    if (!logsContainer) {
+        console.error('Elemento progressLogs não encontrado!');
+        return;
+    }
+    
     const entry = document.createElement('div');
     entry.className = `log-entry ${level}`;
     entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
     logsContainer.appendChild(entry);
     logsContainer.scrollTop = logsContainer.scrollHeight;
+    
+    console.log('Log adicionado:', entry.textContent);
+    console.log('Total de logs no container:', logsContainer.children.length);
 }
 
 
@@ -1097,7 +1123,7 @@ function showFinalResults(notFoundProcesses, foundProcesses) {
     const uniqueFoundProcesses = [...new Set(foundProcesses)];
     const uniqueNotFoundProcesses = [...new Set(notFoundProcesses)];
     
-    console.log('📊 Estatísticas finais:');
+    console.log('Estatísticas finais:');
     console.log('Processos encontrados únicos:', uniqueFoundProcesses.length);
     console.log('Processos não encontrados únicos:', uniqueNotFoundProcesses.length);
     console.log('Lista de não encontrados:', uniqueNotFoundProcesses);
@@ -1126,7 +1152,7 @@ function showFinalResults(notFoundProcesses, foundProcesses) {
     }
     
     // ATUALIZAR listas de categorias e tribunais após atualização dos dados
-    console.log('🔄 Atualizando listas de filtros após atualização dos dados...');
+    console.log('Atualizando listas de filtros após atualização dos dados...');
     
     // Aguardar um pouco para garantir que o backend terminou de processar
     setTimeout(() => {
@@ -1137,7 +1163,7 @@ function showFinalResults(notFoundProcesses, foundProcesses) {
 
 async function forceUpdateFilters() {
     try {
-        console.log('🔄 Chamando endpoint force-update-filters...');
+        console.log('Chamando endpoint force-update-filters...');
         const response = await fetch(`${API_BASE}/force-update-filters`, {
             method: 'POST',
             headers: {
@@ -1147,7 +1173,7 @@ async function forceUpdateFilters() {
         
         if (response.ok) {
             const data = await response.json();
-            console.log('✅ Resposta do force-update-filters:', data);
+            console.log('Resposta do force-update-filters:', data);
             
             if (data.success) {
                 // Atualizar categorias
@@ -1200,13 +1226,13 @@ async function forceUpdateFilters() {
                     updatesTribunalSelect.appendChild(updatesOption);
                 });
                 
-                console.log('✅ Listas de filtros atualizadas com sucesso!');
+                console.log('Listas de filtros atualizadas com sucesso!');
             }
         } else {
-            console.error('❌ Erro ao forçar atualização:', response.status);
+            console.error('Erro ao forçar atualização:', response.status);
         }
     } catch (error) {
-        console.error('❌ Erro na função forceUpdateFilters:', error);
+        console.error('Erro na função forceUpdateFilters:', error);
     }
 }
 
@@ -1214,10 +1240,10 @@ function stopDatabaseUpdate() {
     updateInProgress = false;
     document.getElementById('stopBtn').style.display = 'none';
     document.getElementById('updateBtn').style.display = 'inline-block';
-    addLogEntry('⏹️ Atualização interrompida pelo usuário', 'info');
+    addLogEntry('Atualização interrompida pelo usuário', 'info');
     
     // ATUALIZAR listas de categorias e tribunais mesmo se interrompido
-    console.log('🔄 Atualizando listas de filtros após interrupção...');
+    console.log('Atualizando listas de filtros após interrupção...');
     
     setTimeout(() => {
         console.log('📞 Forçando atualização após interrupção...');

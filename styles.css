@@ -547,6 +547,8 @@ body {
     font-family: 'Courier New', monospace;
     font-size: 0.9rem;
     border: 1px solid #e1e5e9;
+    display: block !important;
+    visibility: visible !important;
 }
 
 .log-entry {
@@ -564,6 +566,11 @@ body {
 
 .log-entry.info {
     color: #17a2b8;
+}
+
+#updateProgress {
+    display: block !important;
+    visibility: visible !important;
 }
 
 
