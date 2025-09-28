@@ -282,10 +282,6 @@ console.log('Debug info:', data);
 console.log('API Response:', response);
 ```
 
-## Licença
-
-Este projeto faz parte do sistema JusConsult e segue a mesma licença do projeto principal.
-
 ---
 
 **JusConsult UI** - Interface web moderna para consulta de processos judiciais
