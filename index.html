@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JusConsult - Sistema de Consulta Jurídica</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>JusConsult</h1>
+            <p>Sistema de Consulta Jurídica</p>
+        </div>
+
+        <!-- Menu Principal -->
+        <div class="menu-container" id="menuContainer">
+            <div class="menu-options">
+                <div class="menu-option" onclick="showUpdatesPage()">
+                    <h3>📊 Consultar Atualizações</h3>
+                    <p>Visualize processos agrupados por período de atualização</p>
+                </div>
+                <div class="menu-option" onclick="showSearchPage()">
+                    <h3>🔍 Consultar Processos</h3>
+                    <p>Busque processos específicos por número, tribunal ou categoria</p>
+                </div>
+                <div class="menu-option" onclick="showUpdateDatabasePage()">
+                    <h3>🔄 Atualizar Dados</h3>
+                    <p>Atualize o banco de dados consultando os tribunais com a lista atual de processos</p>
+                </div>
+                <div class="menu-option" onclick="showRenewPage()">
+                    <h3>📝 Renovar Lista de Processos</h3>
+                    <p>Baixe o arquivo processos.xlsx, edite no Excel e faça upload da nova versão</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Página de Busca -->
+        <div class="search-container" id="searchContainer">
+            <div class="results-header">
+                <h2>Buscar Processos</h2>
+                <button class="btn btn-secondary" onclick="showMainMenu()">Voltar ao Menu</button>
+            </div>
+            <form class="search-form" id="searchForm">
+                <div class="form-group">
+                    <label for="numero">Número do Processo</label>
+                    <input type="text" id="numero" name="numero" placeholder="Ex: 1234567-89.2023.1.01.0001">
+                </div>
+                <div class="form-group">
+                    <label for="tribunal">Tribunal</label>
+                    <select id="tribunal" name="tribunal">
+                        <option value="">Todos os tribunais</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoria</label>
+                    <select id="categoria" name="categoria">
+                        <option value="">Todas as categorias</option>
+                        <option value="Fumicultores">Fumicultores</option>
+                        <option value="Ações PR - Galpão">Ações PR - Galpão</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Buscar</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Página de Atualizações -->
+        <div class="updates-container" id="updatesContainer">
+            <div class="results-header">
+                <h2>Consultar Atualizações</h2>
+                <button class="btn btn-secondary" onclick="showMainMenu()">Voltar ao Menu</button>
+            </div>
+            
+            <!-- Filtros para atualizações -->
+            <form class="search-form" id="updatesFilterForm">
+                <div class="form-group">
+                    <label for="updatesTribunal">Tribunal</label>
+                    <select id="updatesTribunal" name="tribunal">
+                        <option value="">Todos os tribunais</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="updatesCategoria">Categoria</label>
+                    <select id="updatesCategoria" name="categoria">
+                        <option value="">Todas as categorias</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Aplicar Filtros</button>
+                </div>
+            </form>
+            
+            <!-- Gráfico de barras -->
+            <div class="chart-container" id="chartContainer">
+                <div class="chart-header">
+                    <h3 class="chart-title">📊 Processos por Período de Atualização</h3>
+                </div>
+                <div class="chart-wrapper">
+                    <canvas id="updatesChart"></canvas>
+                </div>
+                <div class="chart-legend" id="chartLegend"></div>
+            </div>
+            
+            <div class="loading" id="updatesLoading" style="display: none;">Carregando atualizações...</div>
+            <div id="updatesContent"></div>
+        </div>
+
+        <!-- Página de Atualização de Dados -->
+        <div class="update-container" id="updateContainer">
+            <div class="results-header">
+                <h2>Atualizar Banco de Dados</h2>
+                <button class="btn btn-secondary" onclick="showMainMenu()">Voltar ao Menu</button>
+            </div>
+            
+            <div class="update-description">
+                <p>Esta funcionalidade irá consultar todos os tribunais (TJRJ, TJSP, etc.) para atualizar as informações dos processos listados no arquivo processos.xlsx.</p>
+                <p><strong>Atenção:</strong> Este processo pode demorar vários minutos dependendo da quantidade de processos.</p>
+            </div>
+
+            <div class="update-actions">
+                <button class="btn btn-primary" onclick="startDatabaseUpdate()" id="updateBtn">🔄 Iniciar Atualização</button>
+                <button class="btn btn-secondary" onclick="stopDatabaseUpdate()" id="stopBtn" style="display: none;">⏹️ Parar Atualização</button>
+            </div>
+
+            <div class="loading" id="updateLoading" style="display: none;">Iniciando atualização...</div>
+            
+            <div id="updateProgress" style="display: none;">
+                <div class="progress-header">
+                    <h3>📊 Progresso da Atualização</h3>
+                    <div class="progress-stats">
+                        <span id="progressStats">Processando...</span>
+                    </div>
+                </div>
+                
+                <div class="progress-logs" id="progressLogs">
+                    <!-- Logs de progresso serão inseridos aqui -->
+                </div>
+                
+            </div>
+            
+            <div id="updateResults" style="display: none;">
+                <div class="results-summary">
+                    <h3>✅ Atualização Concluída</h3>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">Processos Encontrados:</span>
+                            <span class="stat-value" id="totalFound">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">Processos Não Encontrados:</span>
+                            <span class="stat-value" id="totalNotFound">0</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="notFoundProcesses" style="display: none;">
+                    <h4>❌ Processos Não Encontrados</h4>
+                    <div class="not-found-list" id="notFoundList"></div>
+                </div>
+                
+                <div class="update-actions">
+                    <button class="btn btn-primary" onclick="resetUpdate()">🔄 Nova Atualização</button>
+                </div>
+            </div>
+            
+            <div id="updateContent"></div>
+        </div>
+
+        <!-- Página de Renovação -->
+        <div class="renew-container" id="renewContainer">
+            <div class="results-header">
+                <h2>Renovar Lista de Processos</h2>
+                <button class="btn btn-secondary" onclick="showMainMenu()">Voltar ao Menu</button>
+            </div>
+            
+            <div class="renew-actions">
+                <button class="btn btn-secondary" onclick="downloadTemplate()">Baixar processos.xlsx</button>
+            </div>
+
+            <!-- Upload de arquivo Excel -->
+            <div class="file-upload" id="fileUploadArea" onclick="document.getElementById('excelFile').click()">
+                <div class="upload-text">📁 Clique para fazer upload do arquivo Excel</div>
+                <div class="upload-hint">ou arraste o arquivo aqui</div>
+                <input type="file" id="excelFile" accept=".xlsx,.xls" onchange="handleFileUpload(event)">
+            </div>
+
+            <!-- Área de confirmação (inicialmente oculta) -->
+            <div id="confirmationArea" style="display: none;">
+                <div class="confirmation-box">
+                    <h3>📋 Arquivo Carregado com Sucesso!</h3>
+                    <p id="fileInfo"></p>
+                    <div class="confirmation-actions">
+                        <button class="btn btn-primary" onclick="confirmReplace()">Confirmar Substituição da Lista</button>
+                        <button class="btn btn-secondary" onclick="cancelUpload()">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="loading" id="renewLoading" style="display: none;">Carregando lista de processos...</div>
+            <div id="renewContent"></div>
+        </div>
+
+        <!-- Resultados da Busca -->
+        <div class="results-container" id="resultsContainer">
+            <div class="results-header">
+                <div class="results-count" id="resultsCount"></div>
+                <button class="btn btn-secondary" onclick="clearSearch()">Nova Busca</button>
+            </div>
+            <div class="loading" id="loading" style="display: none;">Carregando...</div>
+            <div id="resultsContent"></div>
+        </div>
+
+        <!-- Detalhes do Processo -->
+        <div class="process-detail" id="processDetail">
+            <div class="detail-header">
+                <h2 id="detailTitle">Detalhes do Processo</h2>
+                <button class="btn btn-secondary" onclick="hideDetail()">Fechar</button>
+            </div>
+            <div id="detailContent"></div>
+        </div>
+    </div>
+
+    <!-- Modal para lista de processos -->
+    <div class="processes-list-modal" id="processesModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">Processos</h3>
+                <button class="close-modal" onclick="closeProcessesModal()">&times;</button>
+            </div>
+            <div id="modalContent"></div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
